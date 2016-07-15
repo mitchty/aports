@@ -2,7 +2,7 @@
 # Maintainer: Mitch Tishmack <mitch.tishmack@gmail.com>
 pkgname=ghc
 pkgver=8.0.1
-pkgrel=0
+pkgrel=1
 pkgdesc="The Glasgow Haskell Compiler"
 url="http://haskell.org"
 subpackages="$pkgname-doc"
@@ -10,6 +10,8 @@ arch="x86_64 armhf"
 builddir="$srcdir/$pkgname-$pkgver"
 source="
 	http://downloads.haskell.org/~ghc/${pkgver}/ghc-${pkgver}-src.tar.xz
+	0001-Correct-issue-with-libffi-and-glibc.patch
+	0002-rm-ghc-pwd.patch
 "
 
 # Note ghc's license is basically bsd3. If you'd like to know more visit:
@@ -28,6 +30,7 @@ install=""
 # ghc build dependencies
 makedepends="
 	$depends
+	autoconf
 	linux-headers
 	musl-dev
 	ncurses-dev
@@ -35,7 +38,9 @@ makedepends="
 	libffi-dev
 	zlib-dev
 	binutils-dev
+	binutils-gold
 	ghc-bootstrap
+	paxmark
 "
 
 _ghc_build_tmp="$builddir/tmp"
@@ -43,44 +48,57 @@ _ghc_build_tmp="$builddir/tmp"
 build() {
 	cd "$builddir"
 	cp mk/build.mk.sample mk/build.mk || return 1
-	# Note we diverge from "stock" ghc with -fPIC
-	# to ensure we can link against alpine libraries.
-	# TODO: get html/sphinx docs building
 	cat >> mk/build.mk <<-EOF
 	BuildFlavour         = perf-llvm
-	SRC_HC_OPTS         += -fllvm
-	SRC_HC_OPTS         += -fPIC
-	SRC_CC_OPTS         += -fPIC
-	SRC_CC_OPTS         += -DPIC
-	GhcLibHcOpts        += -fPIC
-	GhcRtsCcOpts        += -fPIC
 	INTEGER_LIBRARY      = integer-gmp
 	BeConservative       = YES
-	GhcLibWays           = v
-	GhcLibWays          += dyn
-	GhcLibWays          += p
-	BUILD_SPHINX_HTML    = NO
-	BUILD_SPHINX_PS      = NO
-	BUILD_SPHINX_PDF     = NO
-	HADDOCK_DOCS         = NO
+	V                    = 0
+	GhcStage3HcOpts     += -O3
+	SRC_HC_OPTS         += -fPIC
+	SRC_CC_OPTS         += -fno-stack-protector 
+	SRC_CC_OPTS         += -fno-PIE
+	SRC_CC_OPTS         += -fPIC
+	SRC_CC_OPTS         += -nopie
 	EOF
-	./configure --prefix=/usr \
+	if [ "$CARCH" = "x86_64" ]; then
+		cat >> mk/build.mk <<-EOF
+		SplitObjs            = YES
+		EOF
+	fi
+
+	# Due to patches to the configure script
+	autoreconf || return 1
+
+	./configure \
+		CONF_CC_OPTS_STAGE2=-fno-PIE \
+		CONF_GCC_LINKER_OPTS_STAGE2=-nopie \
+		CONF_LD_LINKER_OPTS_STAGE2=-nopie \
+		--prefix=/usr \
 		--with-ld=ld.gold || return 1
 	make || return 1
 }
 
 doc() {
+	default_doc
 	install -Dm644 "$builddir/LICENSE" "$subpkgdir/usr/share/licenses/$subpkgname/LICENSE" || return 1
 }
 
-# Note, -nopie due to this bug, and must remain until fixed.
-# https://ghc.haskell.org/trac/ghc/ticket/9007
 package() {
 	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install || return 1
-	rm -fr "$pkgdir/usr/share"
-	sed -i 's/.*C compiler link flags.*/ \(\"C compiler link flags\"\, \" -nopie\"\)\,/' "$(find $pkgdir -name settings -type f)"
+	local settings="$(find $pkgdir -name settings -type f)"	
+	sed -i 's/.*C compiler link flags", "/& -nopie /' "$settings"
+	paxmark -m "$pkgdir/usr/lib/ghc-$pkgver/bin/ghc"
+	paxmark -m "$pkgdir/usr/lib/ghc-$pkgver/bin/ghc-iserv"
+	paxmark -m "$pkgdir/usr/lib/ghc-$pkgver/bin/ghc-iserv-dyn"
+	paxmark -m "$pkgdir/usr/lib/ghc-$pkgver/bin/ghc-iserv-prof"
 }
-md5sums="c185b8a1f3e67e43533ec590b751c2ff  ghc-8.0.1-src.tar.xz"
-sha256sums="90fb20cd8712e3c0fbeb2eac8dab6894404c21569746655b9b12ca9684c7d1d2  ghc-8.0.1-src.tar.xz"
-sha512sums="5fa69fd0f7a639a10221a35e16c30b00e801644fcb8581903d3e215ecc0b3bd67960fc07a23d84d083b25e17024c69824fc21925cf82c26d8b36ee6c1fc9d28d  ghc-8.0.1-src.tar.xz"
+md5sums="c185b8a1f3e67e43533ec590b751c2ff  ghc-8.0.1-src.tar.xz
+13c68861fdbab7239c7b9d8d13592046  0001-Correct-issue-with-libffi-and-glibc.patch
+309d46c58befe59d803f07fcaa8be84a  0002-rm-ghc-pwd.patch"
+sha256sums="90fb20cd8712e3c0fbeb2eac8dab6894404c21569746655b9b12ca9684c7d1d2  ghc-8.0.1-src.tar.xz
+fc35b8e669189a4e95069f901ce2b3132c36a292f1f23fb14c6123cd784afa15  0001-Correct-issue-with-libffi-and-glibc.patch
+1a6bdbcca832de8e7835e4dc32c64e5480932cdbe41b704122b5f61123dae390  0002-rm-ghc-pwd.patch"
+sha512sums="5fa69fd0f7a639a10221a35e16c30b00e801644fcb8581903d3e215ecc0b3bd67960fc07a23d84d083b25e17024c69824fc21925cf82c26d8b36ee6c1fc9d28d  ghc-8.0.1-src.tar.xz
+6f90b0de1e34c286e54ef14514ffabe17f9012fbc5448b4aacb3687aac065942e0a3a2c1c57b6338121140369a8870b4ce2a6b355c83c43344d4de8909a253a4  0001-Correct-issue-with-libffi-and-glibc.patch
+0a95a2164562fa64794263c799fda1873b060b5f860b978e27d7cfcd6c0ebcde1362744c18143d646310ad6ddd8460e6cdc480a7a0e3d7031fd50224270f3bd8  0002-rm-ghc-pwd.patch"

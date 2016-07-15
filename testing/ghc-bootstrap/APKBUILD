@@ -10,6 +10,7 @@ pkgname=ghc-bootstrap
 pkgver=8.0.1
 pkgrel=0
 pkgdesc="The Glasgow haskell compiler (bootstrapped)"
+arch="x86_64"
 arch="x86_64 armhf"
 license="custom:bsd3"
 url="https://haskell.org"
@@ -18,8 +19,8 @@ install=""
 subpackages=""
 makedepends=""
 source="
-	https://mitchty.net/ghc/8.0.1/ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
-	http://dev.alpinelinux.org/archive/ghc-bootstrap/ghc-$pkgver-arm-unknown-linux-musleabihf.tar.xz
+	https://mitchty.net/ghc/8.0.1/ghc-$pkgver-x86_64.tar.xz
+	https://mitchty.net/ghc/8.0.1/ghc-$pkgver-armhf.tar.xz
 "
 
 # The bootstrap process uses docker to build ghc from a debian glibc host
@@ -30,18 +31,12 @@ source="
 # Note, these docker images are large, ~10G the dockerfiles weren't built
 # to be small. Once built the containers should likely be removed.
 snapshot() {
-	local x86_64_tar="ghc-${pkgver}-x86_64-pc-linux-musl.tar.xz"
-	local arm_tar="ghc-${pkgver}-arm-unknown-linux-musleabihf.tar.xz"
-
-	docker build -t alpine-ghc-bootstrap:x86_64 \
-		-f bootstrap/x86_64/Dockerfile .
-	docker run -a stdout alpine-ghc-bootstrap:x86_64 \
-		/bin/cat "/tmp/$x86_64_tar" > $x86_64_tar
-
-	docker build -t alpine-ghc-bootstrap:armhf \
-		-f bootstrap/armhf/Dockerfile .
-	docker run -a stdout alpine-ghc-bootstrap:armhf \
-		/bin/cat "/tmp/$arm_tar" > $arm_tar
+	for x in $(echo ${arch}); do
+		docker build -t alpine-ghc-bootstrap:${x} \
+			-f Dockerfile.${x} . || return 1
+		docker run -a stdout alpine-ghc-bootstrap:${x} \
+			/bin/cat "/tmp/ghc-${pkgver}-${arch}.tar.xz" > ghc-${pkgver}-${arch}.tar.xz || return 1
+	done
 }
 
 package() {
@@ -49,11 +44,23 @@ package() {
 	install -d "$pkgdir" || return 1
 	mv usr "$pkgdir" || return 1
 	settings=$(find "$pkgdir" -name settings -type f)
+	local settings="$(find $pkgdir -name settings -type f)"
+	# Force all the pic/pie hardening off for ghc until this bug:
+	# https://ghc.haskell.org/trac/ghc/ticket/9007
+	# is fixed/corrected. Otherwise we end up with TEXT segments
+	# in places that make no sense.
+	sed -i 's/.*C compiler flags", "/& -fPIC -fno-PIE -fno-stack-protector/' "$settings"
+	sed -i 's/.*ld flags", "/& -no-pie /' "$settings"
+	sed -i 's|/usr/.*-gcc|gcc|' "$settings"
+	sed -i 's|/usr/.*-ar|ar|' "$settings"
+	sed -i 's|/usr/.*-ld.gold|ld.gold|' "$settings"
+	sed -i 's|/usr/.*-ld|ld.gold|' "$settings"
+	sed -i 's|/usr/.*/llc|llc-3.7|' "$settings"
+	sed -i 's|/usr/.*/opt|opt-3.7|' "$settings"
 }
-
-md5sums="b6bfa68c3579281dba670cf0f36c3c87  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
-b0901df3305b49b6044607b5ccde5f03  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
-sha256sums="8170367964347066162b547f833034b06a09ba0383323364fb742ea07ea7871f  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
-54d5e8067b087b1d426e01469162749f1f2c417dc2b8b0f6577acbf0c19aba5e  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
-sha512sums="aebc55125e39922ce7a1e0718a602f007da111e0922e757e1b9c06557bc557e6e0e7270c380821e8ea57dd7cd216cd1dbd516fb2365d3deb0672505c5fe2d2dd  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
-ab920e198a2c779e8ad3f6e3f9e9485c8742254c5a914875a6cd106957bb6e0720e90707aabe822295535922d55fc66898660bf7cbf8a7c88c231eceafe358e4  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
+md5sums="1a9b9c66051d44af2ed2c2acb4bccecc  ghc-8.0.1-x86_64.tar.xz
+3def2a6be2063e66df71bb14e4d698f2  ghc-8.0.1-armhf.tar.xz"
+sha256sums="29ddef1e27ca24eadb47367dcc00f74c01c4a6aa3de1246c654775d6fe9a6838  ghc-8.0.1-x86_64.tar.xz
+9fc141e6f7335cdf05ac70fc26a1291f06e5825f819d2536eed9d485e4bce47f  ghc-8.0.1-armhf.tar.xz"
+sha512sums="11cbb3ee58f9ad54b5c69ec9112b0de6d722a26e2310197bad637b5a06c098db5819d39095d2797906974165c8934c564e3a1873e864ad29f8ce293b6aa8a7c7  ghc-8.0.1-x86_64.tar.xz
+4fd228df2fdf454085a19edffc37adb9827c202cc86557c35644744d92e4264fb66023d215a74e5cecb45248877cd829308c30215199ae8998d9a9c1c880e489  ghc-8.0.1-armhf.tar.xz"
