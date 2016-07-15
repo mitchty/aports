@@ -1,0 +1,44 @@
+#-*-mode: Shell-script; coding: utf-8;-*-
+# Maintainer: Mitch Tishmack <mitch.tishmack@gmail.com>
+#
+# Build/bootstrap ghc similarly to the go package.
+# Caveat: bootstrapping isn't a commonly tested piece of ghc.
+pkgname=ghc-bootstrap
+pkgdesc="The Glasgow haskell compiler (bootstrapped)"
+apkgver=8.0
+pkgrel=0
+pkgver=$(echo ${apkgver} | tr -d '[a-z]')
+url="http://haskell.org"
+subpackages=""
+arch="x86_64 armhf"
+source="
+	https://mitchty.net/ghc/8.0.1/ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
+	https://mitchty.net/ghc/8.0.1/ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz
+"
+license="custom:bsd3"
+depends="bash libffi musl zlib gcc binutils-gold llvm3.7"
+install=""
+subpackages=""
+makedepends=""
+
+package() {
+	cd "$srcdir/$CARCH"
+	install -d "$pkgdir" || return 1
+	mv usr "$pkgdir" || return 1
+	settings=$(find "$pkgdir" -name settings -type f)
+}
+
+# The bootstrap process uses docker to build ghc from a debian glibc host
+# then upload the bootstrap compiler to where that source url is.
+#
+# Ensure that docker is running prior to calling this.
+snapshot () {
+	make x86_64 armhf
+	scp "ghc-$pkgver-*-unknown-linux-musl*.tar.xz" dev.alpinelinux.org:/archive/ghc-bootstrap/ || return 1
+}
+md5sums="866b70400314dca48fcd9325a4f196aa  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
+ade64136d1603333fdc3cb269c2335b2  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
+sha256sums="11b3975a2bb7422d3c0d359597da8ea613b4ab6bd580c19b7afc0b513d547c4b  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
+93d023aab2547480c22d5952652388a523ca98581176bc2f65c0d9a394b57a6d  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
+sha512sums="b51fd2badc2ec1f8ad438476824c56e0b5417b87989bdf6813cb629c0c977aad7618a0bc6cdec8a27735afff8ec89e0a463936e6d225420b924fc0ec19aa412a  ghc-8.0.1-x86_64-unknown-linux-musl.tar.xz
+53e5caec5d218e75798a72b30201e8c0a6ba1a333406d217c7153f7f9b0585105e1862b1bb50617673a5d4ea86252c2f803989b642a46c1a853098f334f22470  ghc-8.0.1-arm-unknown-linux-musleabihf.tar.xz"
