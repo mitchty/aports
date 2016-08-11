@@ -3,13 +3,16 @@
 #
 # Build/bootstrap ghc similarly to the go package.
 # Caveat: bootstrapping isn't a commonly tested piece of ghc.
+#
+# Note: This only exists to build the native ghc. It is
+# huge in size and slow.
 pkgname=ghc-bootstrap
 pkgver=8.0.1
 pkgrel=0
 pkgdesc="The Glasgow haskell compiler (bootstrapped)"
 arch="x86_64 armhf"
 license="custom:bsd3"
-url='https://github.com/mitchty/alpine-linux-ghc-bootstrap'
+url="https://haskell.org"
 depends="bash libffi musl zlib gcc binutils-gold llvm3.7"
 install=""
 subpackages=""
