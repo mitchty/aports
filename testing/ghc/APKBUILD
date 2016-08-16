@@ -48,9 +48,10 @@ build() {
 	# TODO: get html/sphinx docs building
 	cat >> mk/build.mk <<-EOF
 	BuildFlavour         = perf-llvm
-	SRC_HC_OPTS         += -fPIC
 	SRC_HC_OPTS         += -fllvm
+	SRC_HC_OPTS         += -fPIC
 	SRC_CC_OPTS         += -fPIC
+	SRC_CC_OPTS         += -DPIC
 	GhcLibHcOpts        += -fPIC
 	GhcRtsCcOpts        += -fPIC
 	INTEGER_LIBRARY      = integer-gmp
