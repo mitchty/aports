@@ -1,10 +1,31 @@
---- a/bootstrap.sh.original	2016-02-10 06:45:52.000000000 -0600
-+++ a/bootstrap.sh	2016-03-18 23:28:06.000000000 -0500
-@@ -74,6 +74,7 @@
+--- a/bootstrap.sh
++++ b/bootstrap.sh
+@@ -66,24 +66,15 @@
+ [ -"$CC"- = -""- ] && die 'C compiler not found (or could not be run).
+   If a C compiler is installed make sure it is on your PATH, or set $CC.'
  
- # Fall back to "ld"... might work.
- [ -$LINK- = -""- ] && LINK=ld
-+LINK="ld.gold"
+-# Find the correct linker/linker-wrapper.
+-LINK="$(for link in collect2 ld; do
+-          [ $($CC -print-prog-name=$link) = $link ] && continue ||
+-          $CC -print-prog-name=$link
+-        done)"
++# Note, we're forcing cabal-install to use ld.gold as the detection logic
++# has some issues with bootstrapped ghc. This avoids a pointless error
++# in the detection logic.
++LINK=ld.gold
  
+-# Fall back to "ld"... might work.
+-[ -$LINK- = -""- ] && LINK=ld
+-
  # And finally, see if we can compile and link something.
    echo 'int main(){}' | $CC -xc - -o /dev/null ||
+     die "C compiler and linker could not compile a simple test program.
+     Please check your toolchain."
+-
+-# Warn that were's overriding $LD if set (if you want).
+-[ -"$LD"- != -""- ] && [ -"$LD"- != -"$LINK"- ] &&
+-  echo "Warning: value set in $LD is not the same as C compiler's $LINK." >&2
+-  echo "Using $LINK instead." >&2
+ 
+ # Set LD, overriding environment if necessary.
+ export LD=$LINK
