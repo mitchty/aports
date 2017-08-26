@@ -1,8 +1,17 @@
 # Maintainer: Mitch Tishmack <mitch.tishmack@gmail.com>
 pkgname=ghc
-pkgver=8.2.1
+pkgver=8.2.2
 pkgrel=0
+# Normal non rc candidate
+urlprefix="$pkgver"
+pkgprefix="$pkgname-$pkgver"
 pkgdesc="The Glasgow Haskell Compiler"
+# Next 5 variables only needed for release candidate testing
+#pkgrcver=8.2.2
+#pkgrc=rc3
+#pkgdate=20171108
+#urlprefix="$pkgrcver-$pkgrc"
+#pkgprefix="ghc-$pkgver.$pkgdate"
 url="http://haskell.org"
 arch="armhf x86_64"
 # Note ghc's license is basically BSD-3. If you'd like to know more visit:
@@ -15,22 +24,22 @@ license="custom:BSD-3"
 # Ref: https://ghc.haskell.org/trac/ghc/wiki/Status/GHC-8.0.1
 #      https://ghc.haskell.org/trac/ghc/wiki/ImprovedLLVMBackend
 depends="gmp-dev perl gcc>=6.2.1 llvm3.9 libffi-dev"
-makedepends_build="$pkgname autoconf cpio binutils-gold paxmark libffi-dev ncurses-dev"
+makedepends_build="$pkgname autoconf cpio binutils-gold paxmark libffi-dev ncurses-dev xz coreutils"
 makedepends_host="linux-headers musl-dev zlib-dev gmp-dev binutils-dev libffi-dev ncurses-dev"
 makedepends="$makedepends_build $makedepends_host"
 checkdepends="python3"
 subpackages="$pkgname-doc $pkgname-dev"
 install="$pkgname.post-install"
 options="!strip"  # we strip it manually in build()
-source="https://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-src.tar.xz
-        https://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-testsuite.tar.xz
+source="https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-src.tar.xz
+        https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-testsuite.tar.xz
         0000-alpine.patch
         0000-bootstrap.patch
         0003-do-not-use-SHELL.patch
         0004-reproducible-tmp-names.patch
         0005-buildpath-abi-stability.patch
         "
-builddir="$srcdir/$pkgname-$pkgver"
+builddir="$srcdir/$pkgprefix"
 
 prepare() {
 	default_prepare
@@ -41,7 +50,6 @@ prepare() {
 		BuildFlavour         = perf-llvm
 		INTEGER_LIBRARY      = integer-gmp
 		BeConservative       = YES
-		V                    = 0
 		GhcStage3HcOpts     += -O3
 		SplitSections        = YES
 	EOF
@@ -82,14 +90,16 @@ build() {
 		--with-ranlib=${CROSS_COMPILE}ranlib \
 		--with-objdump=${CROSS_COMPILE}objdump \
 		--with-ld=${CROSS_COMPILE}ld.gold \
-		--with-ld.gold=${CROSS_COMPILE}ld.gold \
-		--disable-ld-override
+		--disable-ld-override \
+		CONF_CPP_OPTS_STAGE0=" $ffi_inc $ffi_lib " \
+		CONF_CC_OPTS_STAGE0=" $ffi_inc $ffi_lib " \
+		LD=${CROSS_COMPILE}ld.gold
 	make
 }
 
 check() {
 	cd "$builddir/testsuite"
-	make fast THREADS=$JOBS
+#	make fast THREADS=$JOBS
 }
 
 doc() {
@@ -140,6 +150,14 @@ package() {
 		$ghclib/bin/ghc-iserv \
 		$ghclib/bin/ghc-iserv-dyn \
 		$ghclib/bin/ghc-iserv-prof
+
+	# binary-dist is basically the same as non binary dist
+	cd "$builddir"
+	./configure LD=ld.gold
+	make
+	make -j1 binary-dist TAR_COMP_CMD="xz -T0"
+	local bindist=$(find "$builddir" -name "*.tar.xz")
+	cp $bindist $srcdir/../$(basename $bindist)
 }
 
 # Like debian, we split apart the profiled archives/etc...
