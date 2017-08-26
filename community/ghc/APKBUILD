@@ -83,8 +83,8 @@ build() {
 		--with-objdump=${CROSS_COMPILE}objdump \
 		--with-ld=${CROSS_COMPILE}ld.gold \
 		--disable-ld-override \
-		CONF_CPP_OPTS_STAGE0=" -I$ffi_inc -L$ffi_lib " \
-		CONF_CC_OPTS_STAGE0=" -I$ffi_inc -L$ffi_lib "
+		CONF_CPP_OPTS_STAGE0=" $ffi_inc $ffi_lib " \
+		CONF_CC_OPTS_STAGE0=" $ffi_inc $ffi_lib "
 	make
 }
 
