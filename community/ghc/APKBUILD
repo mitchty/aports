@@ -41,7 +41,7 @@ prepare() {
 		BuildFlavour         = perf-llvm
 		INTEGER_LIBRARY      = integer-gmp
 		BeConservative       = YES
-		V                    = 0
+		V                    = 1
 		GhcStage3HcOpts     += -O3
 		SplitSections        = YES
 	EOF
@@ -82,7 +82,6 @@ build() {
 		--with-ranlib=${CROSS_COMPILE}ranlib \
 		--with-objdump=${CROSS_COMPILE}objdump \
 		--with-ld=${CROSS_COMPILE}ld.gold \
-		--with-ld.gold=${CROSS_COMPILE}ld.gold \
 		--disable-ld-override
 	make
 }
