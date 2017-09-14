@@ -134,7 +134,8 @@ package() {
 
 	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install
-	make binary-dist
+	make binary-dist TAR_COMP_CMD="xz -T0"
+	cp bindistprep/ghc-8.0.2-x86_64-alpine-linux.tar.xz /tmp
 
 	cd "$pkgdir"
 
