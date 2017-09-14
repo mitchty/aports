@@ -134,6 +134,7 @@ package() {
 
 	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install
+	make binary-dist
 
 	cd "$pkgdir"
 
