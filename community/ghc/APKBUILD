@@ -134,8 +134,7 @@ package() {
 
 	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install
-	make binary-dist TAR_COMP_CMD="xz -T0"
-	cp $(find . -name ghc-${pkgver}*linux.tar.xz) /tmp
+	cp $(find "$builddir" -name "ghc-$pkgver.*linux.tar.xz") /tmp
 
 	cd "$pkgdir"
 
@@ -172,6 +171,11 @@ package() {
 		$ghclib/bin/ghc-iserv \
 		$ghclib/bin/ghc-iserv-dyn \
 		$ghclib/bin/ghc-iserv-prof
+
+	# binary-dist is basically the same as non binary dist
+	./configure
+	make clean
+	make binary-dist TAR_COMP_CMD="xz -T0"
 }
 
 # Like debian, we split apart the profiled archives/etc...
