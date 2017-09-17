@@ -175,8 +175,9 @@ package() {
 	# binary-dist is basically the same as non binary dist
 	cd "$builddir"
 	make clean
-	./configure
-	make binary-dist TAR_COMP_CMD="xz -T0"
+	./configure LD=ld.gold
+	make
+	make -j1 binary-dist TAR_COMP_CMD="xz -T0"
 }
 
 # Like debian, we split apart the profiled archives/etc...
