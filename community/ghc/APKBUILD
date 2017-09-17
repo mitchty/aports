@@ -15,7 +15,7 @@ license="custom:BSD-3"
 # Ref: https://ghc.haskell.org/trac/ghc/wiki/Status/GHC-8.0.1
 #      https://ghc.haskell.org/trac/ghc/wiki/ImprovedLLVMBackend
 depends="gmp-dev perl gcc>=6.2.1 llvm3.7 libffi-dev"
-makedepends_build="$pkgname autoconf cpio binutils-gold paxmark libffi-dev ncurses-dev xz"
+makedepends_build="$pkgname autoconf cpio binutils-gold paxmark libffi-dev ncurses-dev xz coreutils"
 makedepends_host="linux-headers musl-dev zlib-dev gmp-dev binutils-dev libffi-dev ncurses-dev"
 makedepends="$makedepends_build $makedepends_host"
 checkdepends="python2"
