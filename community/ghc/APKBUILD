@@ -133,7 +133,6 @@ package() {
 
 	cd "$builddir"
 	make -j1 DESTDIR="$pkgdir" install
-	cp $(find "$builddir" -name "ghc-$pkgver.*linux.tar.xz") /tmp
 
 	cd "$pkgdir"
 
@@ -176,6 +175,7 @@ package() {
 	./configure LD=ld.gold
 	make
 	make -j1 binary-dist TAR_COMP_CMD="xz -T0"
+	cp $(find "$builddir" -name "ghc-$pkgver.*linux.tar.xz") /tmp
 }
 
 # Like debian, we split apart the profiled archives/etc...
