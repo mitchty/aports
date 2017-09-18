@@ -51,7 +51,6 @@ options="!strip"  # we strip it manually in build()
 source="http://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-src.tar.xz
 	http://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-testsuite.tar.xz
 	0000-alpine.patch
-	0000-bootstrap.patch
 	0001-rm-ghc-pwd.patch
 	0002-Correct-issue-with-libffi-and-glibc.patch
 	0003-do-not-use-SHELL.patch
