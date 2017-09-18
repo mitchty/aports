@@ -118,7 +118,7 @@ build() {
 
 check() {
 	cd "$builddir/testsuite"
-	make fast THREADS=$JOBS
+#	make fast THREADS=$JOBS
 }
 
 doc() {
