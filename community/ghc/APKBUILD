@@ -173,7 +173,6 @@ package() {
 
 	# binary-dist is basically the same as non binary dist
 	cd "$builddir"
-	make clean
 	./configure LD=ld.gold
 	make
 	make -j1 binary-dist TAR_COMP_CMD="xz -T0"
