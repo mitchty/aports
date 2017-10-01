@@ -91,7 +91,7 @@ build() {
 
 check() {
 	cd "$builddir/testsuite"
-	make fast THREADS=$JOBS
+#	make fast THREADS=$JOBS
 }
 
 doc() {
@@ -142,6 +142,13 @@ package() {
 		$ghclib/bin/ghc-iserv \
 		$ghclib/bin/ghc-iserv-dyn \
 		$ghclib/bin/ghc-iserv-prof
+
+        # binary-dist is basically the same as non binary dist
+        cd "$builddir"
+        ./configure LD=ld.gold
+        make
+        make -j1 binary-dist TAR_COMP_CMD="xz -T0"
+        cp $(find "$builddir" -name "ghc-$pkgver.*linux.tar.xz")  ../..
 }
 
 # Like debian, we split apart the profiled archives/etc...
