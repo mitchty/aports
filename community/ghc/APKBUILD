@@ -175,6 +175,8 @@ package() {
 	./configure LD=ld.gold
 	make
 	make -j1 binary-dist TAR_COMP_CMD="xz -T0"
+	local bindist=$(find "$builddir" -name "ghc-$pkgver.*linux.tar.xz")
+	cp $bindist ../../$(basename $bindist)
 }
 
 # Like debian, we split apart the profiled archives/etc...
