@@ -2,7 +2,16 @@
 pkgname=ghc
 pkgver=8.2.1
 pkgrel=0
+# Normal non rc candidate
+urlprefix="$pkgver"
+pkgprefix="$pkgname-$pkgver"
 pkgdesc="The Glasgow Haskell Compiler"
+# Next 5 variables only needed for release candidate testing
+pkgrcver=8.2.2
+pkgrc=rc2
+pkgdate=20171030
+urlprefix="$pkgrcver-$pkgrc"
+pkgprefix="ghc-$pkgver.$pkgdate"
 url="http://haskell.org"
 arch="armhf x86_64"
 # Note ghc's license is basically BSD-3. If you'd like to know more visit:
@@ -22,15 +31,15 @@ checkdepends="python3"
 subpackages="$pkgname-doc $pkgname-dev"
 install="$pkgname.post-install"
 options="!strip"  # we strip it manually in build()
-source="https://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-src.tar.xz
-        https://downloads.haskell.org/~ghc/$pkgver/ghc-$pkgver-testsuite.tar.xz
+source="https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-src.tar.xz
+        https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-testsuite.tar.xz
         0000-alpine.patch
         0000-bootstrap.patch
         0003-do-not-use-SHELL.patch
         0004-reproducible-tmp-names.patch
         0005-buildpath-abi-stability.patch
         "
-builddir="$srcdir/$pkgname-$pkgver"
+builddir="$srcdir/$pkgprefix"
 
 prepare() {
 	default_prepare
