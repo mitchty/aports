@@ -8,8 +8,8 @@ pkgprefix="$pkgname-$pkgver"
 pkgdesc="The Glasgow Haskell Compiler"
 # Next 5 variables only needed for release candidate testing
 pkgrcver=8.2.2
-pkgrc=rc2
-pkgdate=20171030
+pkgrc=rc3
+pkgdate=20171108
 urlprefix="$pkgrcver-$pkgrc"
 pkgprefix="ghc-$pkgver.$pkgdate"
 url="http://haskell.org"
