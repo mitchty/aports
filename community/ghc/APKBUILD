@@ -52,7 +52,6 @@ prepare() {
 		BeConservative       = YES
 		V                    = 1
 		GhcStage3HcOpts     += -O3
-		SplitSections        = YES
 	EOF
 
 	if [ "$CBUILD" != "$CTARGET" ]; then
