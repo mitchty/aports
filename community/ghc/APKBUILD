@@ -40,7 +40,7 @@ source="https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-src.tar.xz
         "
 
 # We only need the bootstrap patch when bootstrapping a new arches ghc.
-if [ "$CBUILD" != "$CTARGET" ]; then
+if [ "$CBUILD" = "$CTARGET" ]; then
 	source="$source 0000-bootstrap.patch"
 fi
 
