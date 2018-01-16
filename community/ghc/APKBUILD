@@ -104,7 +104,7 @@ build() {
 
 check() {
 	cd "$builddir/testsuite"
-#	make fast THREADS=$JOBS
+	make fast THREADS=$JOBS
 }
 
 doc() {
@@ -155,7 +155,9 @@ package() {
 		$ghclib/bin/ghc-iserv \
 		$ghclib/bin/ghc-iserv-dyn \
 		$ghclib/bin/ghc-iserv-prof
+}
 
+bindist() {
 	# binary-dist is basically the same as non binary dist
 	cd "$builddir"
 	./configure LD=ld.gold
