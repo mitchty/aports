@@ -33,8 +33,6 @@ install="$pkgname.post-install"
 options="!strip"  # we strip it manually in build()
 source="https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-src.tar.xz
         https://downloads.haskell.org/~ghc/$urlprefix/$pkgprefix-testsuite.tar.xz
-        0003-do-not-use-SHELL.patch
-        0004-reproducible-tmp-names.patch
         0005-buildpath-abi-stability.patch
         "
 
@@ -180,25 +178,3 @@ dev() {
 	echo "$pfiles" | cpio -pamVd "$subpkgdir"
 	echo "$pfiles" | xargs rm -fr
 }
-
-md5sums="cd25f62e85f4e0343fd4655bbd52f3e7  ghc-8.2.2-src.tar.xz
-7611e815e205bea81ebce2d74c55906c  ghc-8.2.2-testsuite.tar.xz
-00dca09a830ca9356e6ed679f5b15bfd  0000-alpine.patch
-f1b62ad243334dd7568534553f77ae66  0000-bootstrap.patch
-b7037daa0451975c4da0b74d79fad285  0003-do-not-use-SHELL.patch
-55c57019d066a787655fad85569e5c2f  0004-reproducible-tmp-names.patch
-ef549969967bef4bdbdb504c4bca6544  0005-buildpath-abi-stability.patch"
-sha256sums="bb8ec3634aa132d09faa270bbd604b82dfa61f04855655af6f9d14a9eedc05fc  ghc-8.2.2-src.tar.xz
-927ff939f46a0f79aa87e16e56e0a024a288c78259bed874cb15aa96a653566c  ghc-8.2.2-testsuite.tar.xz
-4c02f85a8495b7ce4e7fc65c0e01c2b65e417586d0771f1e523ad27d64810834  0000-alpine.patch
-b2901f7f69124c97e6b69e46cde52c5ba2ac0c8a1db2ff8734ab9484c4dc1521  0000-bootstrap.patch
-c6b91ee04e1839c1d8d7fbf958f3e676bab59a83e970f419492ca289c4cd726c  0003-do-not-use-SHELL.patch
-c9eb654cddda265e9f95c5aade71cc7e9cfb214e98f0bc7dbbf40c69f5a94ee1  0004-reproducible-tmp-names.patch
-fba6eaa000c001be068b5e07ab4b71e128bc4eb074210c504ba8250f52566841  0005-buildpath-abi-stability.patch"
-sha512sums="6549416f470b599973d409fa45f59c25b07e6a94798cef1a19ad432547dc225338cf4dbc4a4793114b4a417798a3b59b122b92b020251074405c5302b7ffe799  ghc-8.2.2-src.tar.xz
-5b60413910bce2ef0d71e2f531d7297cefc0b03df3e23d63f7a872d9a264e1512b2d6631a3fba35e72d113389762ba34d503649ea4a852ce9fd42e94ef6b96dc  ghc-8.2.2-testsuite.tar.xz
-790123f70f6ad10bb89f310464423bb336ef67b911d6c9a7c4071611779dc0dab37ad2cb3c767e963e5e24589dfeace87efe2270a2b4eca0575058056a137819  0000-alpine.patch
-82cecce9e42c12cc3c8d484331b76ac5c6d2529887cd73181d4798f95057883be47489919379e6ebf7daba95b7c25b5d9d689b30ed8d01b13dda20a3b921ce3d  0000-bootstrap.patch
-59194e6994c8344c579ec16c3adf3e0cdc7c356b524b12f8b10ec940191463d686782e525537c94ffa8e1bf9efcc36a2b3da3004183586ab0e354ab0a7036e0a  0003-do-not-use-SHELL.patch
-b5a5e73a2f01c0cabc96a49776d0d0f3d1d7a10759bb0b2982e7c7f6dc525d0559c0183ee779feb77ec6f2cec3bac17c1a5ba4c3bc0c6f780dfc1ed3dcf6c80e  0004-reproducible-tmp-names.patch
-e1c2cef06d307eda4b35521204e95eb54ace5dbcd22de659e95356f884b4424d6304365e4ab45c5116192cba4c095e2e91114bc7cb73d7c7173a7035287d0854  0005-buildpath-abi-stability.patch"
