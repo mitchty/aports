@@ -19,11 +19,11 @@ arch="armhf x86_64"
 # * https://ghc.haskell.org/trac/ghc/wiki/Licensing
 license="custom:BSD-3"
 # Note that ghc is sensitive to the version of llvm used,
-# hence the llvm3.9 dependency.
+# hence the llvm5 dependency.
 #
 # Ref: https://ghc.haskell.org/trac/ghc/wiki/Status/GHC-8.0.1
 #      https://ghc.haskell.org/trac/ghc/wiki/ImprovedLLVMBackend
-depends="gmp-dev perl gcc>=6.2.1 llvm3.9 libffi-dev"
+depends="gmp-dev perl gcc>=6.2.1 llvm5 libffi-dev"
 makedepends_build="ghc autoconf cpio binutils-gold paxmark libffi-dev ncurses-dev xz coreutils"
 makedepends_host="linux-headers musl-dev zlib-dev gmp-dev binutils-dev libffi-dev ncurses-dev"
 makedepends="ghc $makedepends_build $makedepends_host"
