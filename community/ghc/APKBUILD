@@ -100,6 +100,13 @@ build() {
 		CONF_CPP_OPTS_STAGE0=" $ffi_inc $ffi_lib " \
 		CONF_CC_OPTS_STAGE0=" $ffi_inc $ffi_lib " \
 		LD=$GHCLD
+
+	# Switch llvm-targets from unknown-linux-gnueabihf->alpine-linux
+	# so we can match the llvm vendor string alpine uses
+	sed -i -e 's/unknown-linux-gnueabihf/alpine-linux/g' llvm-targets
+	sed -i -e 's/unknown-linux-gnueabi/alpine-linux/g' llvm-targets
+	sed -i -e 's/unknown-linux-gnu/alpine-linux/g' llvm-targets
+
 	make
 }
 
